@@ -11,7 +11,9 @@ RUN mkdir -p /out/WEB-INF/classes /out/WEB-INF/lib \
     && find lib -name '*.jar' ! -name '*-sources.jar' ! -name '*-javadoc.jar' -exec cp {} /out/WEB-INF/lib/ \;
 
 FROM tomcat:11.0-jre21-temurin
-RUN rm -rf /usr/local/tomcat/webapps/*
+RUN rm -rf /usr/local/tomcat/webapps/* \
+    && sed -i 's/<Server port="8005"/<Server port="-1"/' /usr/local/tomcat/conf/server.xml \
+    && grep -q '<Server port="-1"' /usr/local/tomcat/conf/server.xml
 COPY --from=build /out/ /usr/local/tomcat/webapps/ROOT/
 EXPOSE 8080
 CMD ["catalina.sh", "run"]
